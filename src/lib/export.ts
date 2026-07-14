@@ -1,10 +1,12 @@
 export type ExportSlide = {
   id: string;
   role: string;
-  eyebrow: string;
+  eyebrow?: string;
+  kicker?: string;
   title: string;
   body: string;
   points?: string[];
+  bullets?: string[];
   number?: string;
 };
 
@@ -123,9 +125,10 @@ export function renderSlideSvg(
   const x = (value: number) => Math.round(value * sx * 100) / 100;
   const y = (value: number) => Math.round(value * sy * 100) / 100;
   const font = (value: number) => Math.round(value * scale * 100) / 100;
-  const titleLines = wrapText(slide.title, 17.2, slide.points?.length ? 3 : 4);
-  const bodyLines = wrapText(slide.body, 34, slide.points?.length ? 3 : 6);
-  const visiblePoints = (slide.points ?? []).filter(Boolean).slice(0, 4);
+  const points = slide.points ?? slide.bullets ?? [];
+  const titleLines = wrapText(slide.title, 17.2, points.length ? 3 : 4);
+  const bodyLines = wrapText(slide.body, 34, points.length ? 3 : 6);
+  const visiblePoints = points.filter(Boolean).slice(0, 4);
   const pageNumber = slide.number?.trim() || String(index + 1).padStart(2, "0");
   const safeTotal = Math.max(1, total);
   const progress = Math.min(1, Math.max(0, (index + 1) / safeTotal));
@@ -155,7 +158,7 @@ export function renderSlideSvg(
   <path d="M ${x(74)} ${y(122)} H ${x(1006)}" stroke="${escapeXml(theme.surface)}" stroke-width="${font(2)}"/>
   <g font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', Arial, sans-serif">
     <rect x="${x(74)}" y="${y(72)}" width="${x(11)}" height="${y(11)}" rx="${font(3)}" fill="${escapeXml(theme.accent)}"/>
-    <text x="${x(102)}" y="${y(86)}" fill="${escapeXml(theme.muted)}" font-size="${font(24)}" font-weight="700" letter-spacing="${font(2.4)}">${escapeXml((slide.eyebrow || slide.role).toUpperCase())}</text>
+    <text x="${x(102)}" y="${y(86)}" fill="${escapeXml(theme.muted)}" font-size="${font(24)}" font-weight="700" letter-spacing="${font(2.4)}">${escapeXml((slide.eyebrow || slide.kicker || slide.role).toUpperCase())}</text>
     <text x="${x(1006)}" y="${y(86)}" text-anchor="end" fill="${escapeXml(theme.muted)}" font-size="${font(22)}" font-weight="650">${escapeXml(pageNumber)} / ${String(safeTotal).padStart(2, "0")}</text>
     <rect x="${x(74)}" y="${y(230)}" width="${x(54)}" height="${y(6)}" rx="${font(3)}" fill="${escapeXml(theme.accent)}"/>
     ${textBlock(titleLines, x(74), y(titleY), y(titleLineHeight), `fill="${escapeXml(theme.text)}" font-size="${font(81)}" font-weight="830" letter-spacing="${font(-2.7)}"`)}
